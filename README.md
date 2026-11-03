@@ -148,9 +148,24 @@ RETURN
 ('ORD1003', '2026-10-02', '2026-10-03', 'PROD003', 'E-commerce', 'East', 600, 550, 'On-Time', 1),
 ('ORD1004', '2026-10-03', '2026-10-05', 'PROD004', 'Modern Trade', 'South', 200, 250, 'Delayed', 1),
 ('ORD1005', '2026-10-04', '2026-10-05', 'PROD001', 'E-commerce', 'West', 800, 750, 'On-Time', 1);
-Setup & Deployment Instructions
-Database Initialization: Open MySQL Workbench, paste and execute the DDL/DML script above to generate the fmcg_kpi_reporting database and seed records.
+## ⚙️ Setup & Deployment Instructions
 
-Power BI Integration: Open Power BI Desktop, connect to your MySQL server instance, and import Dim_Date, Dim_Product, and Fact_Sales.
+Follow these steps to set up the database and deploy the executive reporting dashboard:
 
-Report Configuration: Establish model relationships, add the custom DAX measures to Fact_Sales, and map the executive ticker cards alongside the matrix view.
+### 1. Database Initialization
+* Open **MySQL Workbench** or your preferred MySQL client.
+* Create a new SQL tab, paste the complete **Database Setup Script** provided above, and execute it.
+* This will automatically drop existing tables, recreate the `fmcg_kpi_reporting` database, build the star schema tables (`Dim_Date`, `Dim_Product`, `Fact_Sales`), and populate them with seed data.
+
+### 2. Power BI Integration
+* Open **Power BI Desktop**.
+* Navigate to **Get Data > MySQL database**.
+* Enter your server instance credentials and import the three core relational tables:
+  * `Dim_Date`
+  * `Dim_Product`
+  * `Fact_Sales`
+
+### 3. Dashboard & Report Configuration
+* **Model Relationships:** Verify that `Fact_Sales` is correctly linked to `Dim_Date` (`order_date` $\rightarrow$ `date_key`) and `Dim_Product` (`product_id` $\rightarrow$ `product_id`).
+* **DAX Measures:** Right-click the `Fact_Sales` table in Power BI, select **New measure**, and paste the custom DAX formulas for revenue tickers, OTIF fulfillment health, and dynamic color status logic.
+* **Visual Mapping:** Drop the ticker measures into modern Card visuals and map the matrix view using `channel` rows, `region` columns, and your performance metrics.
