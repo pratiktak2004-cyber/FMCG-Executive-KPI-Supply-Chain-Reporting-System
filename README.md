@@ -1,0 +1,2 @@
+# FMCG-Executive-KPI-Supply-Chain-Reporting-System
+An end-to-end reporting platform built for Fast-Moving Consumer Goods (FMCG) operations. This project establishes an automated pipeline from a normalized MySQL relational database star schema to an executive Power BI dashboard featuring dynamic DAX financial tickers, conditional color-status formatting, and multi-dimensional supply chain tracking.
