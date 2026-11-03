@@ -24,7 +24,10 @@ An end-to-end business intelligence and enterprise reporting platform built for 
 * **Database:** MySQL / MySQL Workbench (Data Modeling, SQL Scripting, Relational Joins)
 * **BI & Visualization:** Power BI Desktop (DAX Measures, Card Tickers, Matrix Visuals, Conditional Formatting)
 * **Data Engineering:** Star schema modeling, primary/foreign key indexing, and custom metric modeling
-* ## Setup & Deployment Instructions
+
+---
+
+## Setup & Deployment Instructions
 
 Follow these steps to set up the database and deploy the executive reporting dashboard:
 
