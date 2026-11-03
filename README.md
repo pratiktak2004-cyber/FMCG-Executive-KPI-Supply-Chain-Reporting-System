@@ -4,11 +4,11 @@ An end-to-end business intelligence and enterprise reporting platform built for 
 
 ---
 
-## Key Features & Architecture
+## 🚀 Key Features & Architecture
 
 * **Relational Database Design (MySQL):** 
-  * Structured using a star schema (`fmcg_kpi_reporting`) consisting of dimension tables (`dim_date`, `dim_product`) and fact tables (`fact_sales`).
-  * Tracks high-level operational metrics including order quantities, target thresholds, delivery statuses, and regional sales channels.
+  * Structured using a clean star schema (`fmcg_kpi_reporting`) consisting of dimension tables (`Dim_Date`, `Dim_Product`) and fact tables (`Fact_Sales`).
+  * Tracks high-level operational metrics including order quantities, target thresholds, delivery statuses, fulfillment flags, and regional sales channels.
 * **Advanced DAX Financial Tickers:**
   * Built dynamic string-concatenated KPI cards featuring real-time directional status arrows ($\blacktriangle$ / $\blacktriangledown$) and automated performance tracking.
   * Designed custom DAX measures for **Total Revenue**, **OTIF Rate %** (On-Time In-Full), and **Target Variance %**.
@@ -19,7 +19,7 @@ An end-to-end business intelligence and enterprise reporting platform built for 
 
 ---
 
-## Tech Stack & Tools
+## 🛠️ Tech Stack & Tools
 
 * **Database:** MySQL / MySQL Workbench (Data Modeling, SQL Scripting, Relational Joins)
 * **BI & Visualization:** Power BI Desktop (DAX Measures, Card Tickers, Matrix Visuals, Conditional Formatting)
@@ -27,81 +27,100 @@ An end-to-end business intelligence and enterprise reporting platform built for 
 
 ---
 
-## Database Setup Script (SQL)
+## 💻 Database Setup Script (SQL)
 
 ```sql
--- Create Database
-DROP DATABASE IF EXISTS fmcg_kpi_reporting;
-CREATE DATABASE fmcg_kpi_reporting;
+-- 1. Drop existing tables if they exist to start fresh
+DROP TABLE IF EXISTS Fact_Sales;
+DROP TABLE IF EXISTS Dim_Product;
+DROP TABLE IF EXISTS Dim_Date;
+
+-- 2. Create Database
+CREATE DATABASE IF NOT EXISTS fmcg_kpi_reporting;
 USE fmcg_kpi_reporting;
 
--- Create Dimension Tables
-CREATE TABLE dim_date (
+-- 3. Create Date Dimension
+CREATE TABLE Dim_Date (
     date_key DATE PRIMARY KEY,
-    day_of_week VARCHAR(15),
+    year INT,
+    quarter VARCHAR(5),
     month_name VARCHAR(15),
     month_num INT,
-    quarter VARCHAR(5),
-    year INT
+    day_of_week VARCHAR(15)
 );
 
-CREATE TABLE dim_product (
-    product_id INT PRIMARY KEY,
+-- 4. Create Product Dimension
+CREATE TABLE Dim_Product (
+    product_id VARCHAR(20) PRIMARY KEY,
     product_name VARCHAR(100),
     category VARCHAR(50),
+    sub_category VARCHAR(50),
+    unit_cost DECIMAL(10,2),
     unit_price DECIMAL(10,2)
 );
 
--- Create Fact Table
-CREATE TABLE fact_sales (
-    order_id INT PRIMARY KEY,
-    date_key DATE,
-    product_id INT,
-    region VARCHAR(50),
-    channel VARCHAR(50),
+-- 5. Create Fact Sales Table
+CREATE TABLE Fact_Sales (
+    order_id VARCHAR(20) PRIMARY KEY,
+    order_date DATE,
+    delivery_date DATE,
+    product_id VARCHAR(20),
+    channel VARCHAR(50),            -- Modern Trade, General Trade, E-commerce
+    region VARCHAR(50),             -- North, South, East, West
     quantity_sold INT,
     target_quantity INT,
-    delivery_status VARCHAR(20),
-    order_fulfilled_in_full TINYINT,
-    FOREIGN KEY (date_key) REFERENCES dim_date(date_key),
-    FOREIGN KEY (product_id) REFERENCES dim_product(product_id)
+    delivery_status VARCHAR(30),    -- On-Time, Delayed, Cancelled
+    order_fulfilled_in_full TINYINT(1), -- 1 for Full, 0 for Partial
+    FOREIGN KEY (order_date) REFERENCES Dim_Date(date_key),
+    FOREIGN KEY (product_id) REFERENCES Dim_Product(product_id)
 );
 
--- Seed Sample Data (DML)
-INSERT INTO dim_date VALUES 
-('2026-10-01', 'Thursday', 'October', 10, 'Q4', 2026),
-('2026-10-02', 'Friday', 'October', 10, 'Q4', 2026);
+-- 6. Insert Product Data
+INSERT INTO Dim_Product (product_id, product_name, category, sub_category, unit_cost, unit_price) VALUES
+('PROD001', 'A2 Pure Banni Buffalo Milk 1L', 'Dairy & Beverage', 'Fresh Milk', 45.00, 65.00),
+('PROD002', 'Sprouted Oat Muesli 500g', 'Packaged Foods', 'Breakfast Cereals', 120.00, 180.00),
+('PROD003', 'Probiotic Greek Yogurt 200g', 'Dairy & Beverage', 'Yogurt', 35.00, 55.00),
+('PROD004', 'Freeze-Dried Strawberry Mix 250g', 'Packaged Foods', 'Snacks', 150.00, 240.00);
 
-INSERT INTO dim_product VALUES 
-(101, 'Energy Drink 250ml', 'Beverages', 45.00),
-(102, 'Packaged Snacks 100g', 'Foods', 30.00);
+-- 7. Insert Date Data
+INSERT INTO Dim_Date (date_key, year, quarter, month_name, month_num, day_of_week) VALUES
+('2026-10-01', 2026, 'Q4', 'October', 10, 'Thursday'),
+('2026-10-02', 2026, 'Q4', 'October', 10, 'Friday'),
+('2026-10-03', 2026, 'Q4', 'October', 10, 'Saturday'),
+('2026-10-04', 2026, 'Q4', 'October', 10, 'Sunday'),
+('2026-10-05', 2026, 'Q4', 'October', 10, 'Monday');
+
+-- 8. Insert Sales Data
+INSERT INTO Fact_Sales (order_id, order_date, delivery_date, product_id, channel, region, quantity_sold, target_quantity, delivery_status, order_fulfilled_in_full) VALUES
+('ORD1001', '2026-10-01', '2026-10-02', 'PROD001', 'Modern Trade', 'North', 500, 480, 'On-Time', 1),
+('ORD1002', '2026-10-01', '2026-10-03', 'PROD002', 'General Trade', 'West', 350, 400, 'Delayed', 0),
 -- Total Revenue Measure
 Total Revenue = 
 SUMX(
-    fact_sales, 
-    fact_sales[quantity_sold] * RELATED(dim_product[unit_price])
+    Fact_Sales, 
+    Fact_Sales[quantity_sold] * RELATED(Dim_Product[unit_price])
 )
 
 -- Target Fulfillment Rate (OTIF %) Measure
 OTIF Rate % = 
 DIVIDE(
-    CALCULATE(COUNTROWS(fact_sales), fact_sales[delivery_status] = "On-Time" && fact_sales[order_fulfilled_in_full] = 1),
-    COUNTROWS(fact_sales),
+    CALCULATE(COUNTROWS(Fact_Sales), Fact_Sales[delivery_status] = "On-Time" && Fact_Sales[order_fulfilled_in_full] = 1),
+    COUNTROWS(Fact_Sales),
     0
 ) * 100
 
 -- Sales Target Variance % Measure
 Target Variance % = 
 DIVIDE(
-    SUM(fact_sales[quantity_sold]) - SUM(fact_sales[target_quantity]),
-    SUM(fact_sales[target_quantity]),
+    SUM(Fact_Sales[quantity_sold]) - SUM(Fact_Sales[target_quantity]),
+    SUM(Fact_Sales[target_quantity]),
     0
 ) * 100
 
 -- Revenue Ticker with Directional Indicators
 Revenue_Ticker = 
 VAR CurrentRev = [Total Revenue]
-VAR TargetRev = SUM(fact_sales[target_quantity]) * 65
+VAR TargetRev = SUM(Fact_Sales[target_quantity]) * 65
 VAR VariancePct = DIVIDE(CurrentRev - TargetRev, TargetRev, 0)
 VAR Arrow = IF(VariancePct >= 0, " ▲ (+", " ▼ (")
 RETURN
@@ -126,7 +145,6 @@ OTIF_Color_Status =
 VAR CurrentOTIF = [OTIF Rate %]
 RETURN
     IF(CurrentOTIF >= 85, "#107C10", "#A80000")
-
-INSERT INTO fact_sales VALUES 
-(5001, '2026-10-01', 101, 'East', 'E-commerce', 600, 550, 'On-Time', 1),
-(5002, '2026-10-02', 102, 'North', 'Modern Trade', 400, 420, 'Delayed', 0);
+('ORD1003', '2026-10-02', '2026-10-03', 'PROD003', 'E-commerce', 'East', 600, 550, 'On-Time', 1),
+('ORD1004', '2026-10-03', '2026-10-05', 'PROD004', 'Modern Trade', 'South', 200, 250, 'Delayed', 1),
+('ORD1005', '2026-10-04', '2026-10-05', 'PROD001', 'E-commerce', 'West', 800, 750, 'On-Time', 1);
