@@ -4,7 +4,7 @@ An end-to-end business intelligence and enterprise reporting platform built for 
 
 ---
 
-## 🚀 Key Features & Architecture
+## Key Features & Architecture
 
 * **Relational Database Design (MySQL):** 
   * Structured using a clean star schema (`fmcg_kpi_reporting`) consisting of dimension tables (`Dim_Date`, `Dim_Product`) and fact tables (`Fact_Sales`).
@@ -19,7 +19,7 @@ An end-to-end business intelligence and enterprise reporting platform built for 
 
 ---
 
-## 🛠️ Tech Stack & Tools
+## Tech Stack & Tools
 
 * **Database:** MySQL / MySQL Workbench (Data Modeling, SQL Scripting, Relational Joins)
 * **BI & Visualization:** Power BI Desktop (DAX Measures, Card Tickers, Matrix Visuals, Conditional Formatting)
@@ -27,7 +27,7 @@ An end-to-end business intelligence and enterprise reporting platform built for 
 
 ---
 
-## 💻 Database Setup Script (SQL)
+## Database Setup Script (SQL)
 
 ```sql
 -- 1. Drop existing tables if they exist to start fresh
@@ -148,3 +148,9 @@ RETURN
 ('ORD1003', '2026-10-02', '2026-10-03', 'PROD003', 'E-commerce', 'East', 600, 550, 'On-Time', 1),
 ('ORD1004', '2026-10-03', '2026-10-05', 'PROD004', 'Modern Trade', 'South', 200, 250, 'Delayed', 1),
 ('ORD1005', '2026-10-04', '2026-10-05', 'PROD001', 'E-commerce', 'West', 800, 750, 'On-Time', 1);
+Setup & Deployment Instructions
+Database Initialization: Open MySQL Workbench, paste and execute the DDL/DML script above to generate the fmcg_kpi_reporting database and seed records.
+
+Power BI Integration: Open Power BI Desktop, connect to your MySQL server instance, and import Dim_Date, Dim_Product, and Fact_Sales.
+
+Report Configuration: Establish model relationships, add the custom DAX measures to Fact_Sales, and map the executive ticker cards alongside the matrix view.
